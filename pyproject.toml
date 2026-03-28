@@ -1,0 +1,24 @@
+[project]
+name = "company-chatbot"
+version = "0.1.0"
+description = "A localized, AMD-accelerated RAG evaluation pipeline bypassing HuggingFace bloat."
+readme = "README.md"
+requires-python = ">=3.10" # Adjust this if you are using a newer version like 3.12
+dependencies = [
+    "pandas>=2.0.0",
+    "datasets>=2.18.0",
+    "ragas>=0.2.0",
+    "fastembed>=0.2.5",
+    "langchain-community>=0.0.29",
+    "langchain-qdrant>=0.1.0",
+    "langchain-ollama>=0.1.0",
+    "qdrant-client>=1.8.0",
+    "torch>=2.10.0",
+    "onnxruntime-directml>=1.24.3",
+    "rapidfuzz>=3.14.3",
+    "streamlit>=1.55.0",
+    "langchain-groq>=1.1.2",
+    "fastapi>=0.135.2",
+    "uvicorn>=0.42.0",
+    "crawl4ai>=0.8.6",
+]
