@@ -13,8 +13,7 @@ dependencies = [
     "langchain-qdrant>=0.1.0",
     "langchain-ollama>=0.1.0",
     "qdrant-client>=1.8.0",
-    "torch>=2.10.0",
-    "onnxruntime-directml>=1.24.3",
+    "onnxruntime>=1.16.0",
     "rapidfuzz>=3.14.3",
     "streamlit>=1.55.0",
     "langchain-groq>=1.1.2",
@@ -23,4 +22,5 @@ dependencies = [
     "crawl4ai>=0.8.6",
     "pydantic>=2.12.5",
     "langchain-core>=1.2.19",
+    "aiofiles>=25.1.0",
 ]
