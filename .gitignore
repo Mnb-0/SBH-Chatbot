@@ -216,6 +216,6 @@ __marimo__/
 
 /scraper_profile
 
-/qdrant_db
+#/qdrant_db
 
-/qdrant_db_clean
+#/qdrant_db_clean
