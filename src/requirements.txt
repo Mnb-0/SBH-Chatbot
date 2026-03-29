@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+langchain-core
+langchain-community
+langchain-groq
+langchain-qdrant
+qdrant-client
+fastembed

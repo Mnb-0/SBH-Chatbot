@@ -21,4 +21,6 @@ dependencies = [
     "fastapi>=0.135.2",
     "uvicorn>=0.42.0",
     "crawl4ai>=0.8.6",
+    "pydantic>=2.12.5",
+    "langchain-core>=1.2.19",
 ]
