@@ -1,0 +1,19 @@
+# Replit / pip installs; keep in sync with pyproject.toml dependencies
+pandas>=2.0.0
+datasets>=2.18.0
+ragas>=0.2.0
+fastembed>=0.2.5
+langchain-community>=0.0.29
+langchain-qdrant>=0.1.0
+langchain-ollama>=0.1.0
+qdrant-client>=1.8.0
+onnxruntime>=1.16.0
+rapidfuzz>=3.14.3
+streamlit>=1.55.0
+langchain-groq>=1.1.2
+fastapi>=0.135.2
+uvicorn>=0.42.0
+crawl4ai>=0.8.6
+pydantic>=2.12.5
+langchain-core>=1.2.19
+aiofiles>=25.1.0

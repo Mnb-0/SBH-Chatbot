@@ -1,17 +1,19 @@
 import os
 import re
-from fastapi import FastAPI, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from contextlib import asynccontextmanager
 from typing import List
-from langchain_core.messages import SystemMessage, HumanMessage
+
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from langchain_core.messages import HumanMessage, SystemMessage
+from pydantic import BaseModel
 
 from core_logic import (
     get_rag_components,
     get_sector_filter,
     get_soft_search_results,
-    verify_response,
     self_correct,
+    verify_response,
 )
 
 # --- Identity short-circuit ---
@@ -30,6 +32,7 @@ _IDENTITY_PATTERNS = re.compile(
     r"|\bwhat\s+are\s+you\b",
     re.IGNORECASE,
 )
+
 
 def is_identity_question(text: str) -> bool:
     return bool(_IDENTITY_PATTERNS.search(text))
@@ -50,8 +53,26 @@ class ChatResponse(BaseModel):
     reply: str
 
 
-# --- Initialize App & Components ---
-app = FastAPI(title="Salem Balhamer API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY environment variable is missing.")
+    try:
+        vectorstore, gen_llm, critic_llm = get_rag_components(api_key)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load system components: {e}") from e
+    app.state.vectorstore = vectorstore
+    app.state.gen_llm = gen_llm
+    app.state.critic_llm = critic_llm
+    yield
+
+
+app = FastAPI(
+    title="Salem Balhamer API",
+    description="RAG chat API for SBH corporate intelligence (POST /api/chat).",
+    lifespan=lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,20 +81,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-api_key = os.environ.get("GROQ_API_KEY")
-if not api_key:
-    raise RuntimeError("GROQ_API_KEY environment variable is missing.")
 
-try:
-    vectorstore, gen_llm, critic_llm = get_rag_components(api_key)
-except Exception as e:
-    raise RuntimeError(f"Failed to load system components: {e}")
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
 
 
-# --- The API Endpoint ---
+@app.get("/")
+async def root() -> dict[str, str]:
+    return {"service": "Salem Balhamer API", "chat": "/api/chat", "docs": "/docs"}
+
+
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest):
-    prompt = request.message
+async def chat_endpoint(payload: ChatRequest, req: Request):
+    prompt = payload.message
+    vectorstore = req.app.state.vectorstore
+    gen_llm = req.app.state.gen_llm
+    critic_llm = req.app.state.critic_llm
 
     if not prompt.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")

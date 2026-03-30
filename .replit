@@ -1,0 +1,50 @@
+# Salem Balhamer chat API — Replit Run / Deploy
+# Set GROQ_API_KEY in Secrets before publishing. Ensure qdrant_db_clean is present.
+
+run = "python src/api.py"
+
+entrypoint = "src/api.py"
+
+modules = ["python-3.11"]
+
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["glibcLocales", "libxcrypt", "oneDNN", "rapidfuzz-cpp", "re2", "taskflow"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/api.py"
+waitForPort = 8000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 8000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["python", "src/api.py"]
+
+[gitHubImport]
+requiredFiles = [".replit"]
