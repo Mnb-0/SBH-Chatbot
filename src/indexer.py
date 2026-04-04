@@ -1,101 +1,162 @@
 import os
 import re
+import logging
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 # --- Configuration ---
-DB_PATH = "./qdrant_db_clean"
+DB_PATH = "./qdrant_db"
 COLLECTION_NAME = "salem_balhamer_knowledge"
-DATA_DIR = "./clean_data"
+KB_FILE = "./data/Salem_Balhamer_RAG_Knowledge_Base.md"
 
-def final_clean(text):
-    """
-    The 'Final Boss' cleaner: Strips headers that are just single links 
-    and kills specific navigation patterns that survived earlier passes.
-    """
-    # 1. Remove lines that are just Markdown headers containing a single link (Navigation/Menu style)
-    # Example: ##### [Industrial Facilities](https://...)
-    text = re.sub(r'^#+\s*\[.*?\]\(.*?\)\s*$', '', text, flags=re.MULTILINE)
-    
-    # 2. Kill repetitive breadcrumb-style separators if they exist
-    text = re.sub(r'»', '', text)
-    
-    # 3. Collapse excessive whitespace again just in case
-    text = re.sub(r'\n{3,}', '\n\n', text)
-    
-    return text.strip()
+# FIX: HuggingFace token moved out of source code.
+# Set the HF_TOKEN environment variable before running this script:
+#   export HF_TOKEN=your_token_here   (Linux/Mac)
+#   set HF_TOKEN=your_token_here      (Windows)
+hf_token = os.environ.get("HF_TOKEN")
+if not hf_token:
+    raise EnvironmentError(
+        "HF_TOKEN environment variable is not set. "
+        "Export it before running: export HF_TOKEN=your_token_here"
+    )
+os.environ["HF_TOKEN"] = hf_token
 
-# Initialize Client & Embeddings
+# FIX: Sector classification now uses a keyword scoring system.
+# Each sector accumulates a score based on how many of its keywords appear in the chunk.
+# The sector with the highest score wins, preventing a single passing mention
+# (e.g. "contracting partners") from misclassifying an otherwise General chunk.
+# A minimum score threshold ensures low-confidence matches fall back to General.
+SECTOR_KEYWORDS: dict[str, list[str]] = {
+    "Industrial": [
+        "INDUSTRIAL SECTOR", "FACTORY", "FACTORIES", "MANUFACTURING",
+        "PRODUCTION PLANT", "PIPE FACTORY", "INSULATION FACTORY",
+        "PLASTIC FACTORY", "RAW MATERIAL", "PRODUCTION LINE",
+    ],
+    "Trading": [
+        "TRADING SECTOR", "SANITARY WARE", "PIPES", "FITTINGS",
+        "PLASTIC PRODUCTS", "DISTRIBUTION", "SUPPLY CHAIN", "IMPORT",
+        "EXPORT", "WHOLESALE", "RETAIL SALES",
+    ],
+    "Contracting": [
+        "CONTRACTING", "HVAC", "ELECTROMECHANICAL", "CONSTRUCTION",
+        "BUILDING PROJECT", "NEOM", "INFRASTRUCTURE", "CIVIL WORKS",
+        "MEP", "INSTALLATION PROJECT",
+    ],
+    "Real Estate": [
+        "REAL ESTATE", "RESIDENTIAL COMPLEX", "VILLA", "PROPERTY",
+        "HOUSING", "APARTMENT", "COMPOUND", "DEVELOPMENT PROJECT",
+        "LAND", "BUILDING MANAGEMENT",
+    ],
+    "Services": [
+        "SERVICES SECTOR", "TRAINING", "INFORMATION TECHNOLOGY",
+        "IT SERVICES", "FACILITY MANAGEMENT", "SUPPORT SERVICES",
+        "MANPOWER", "CONSULTANCY", "MAINTENANCE SERVICES",
+    ],
+}
+
+MIN_SCORE_THRESHOLD = 2
+
+
+def classify_sector(chunk: str) -> str:
+    """
+    Scores a chunk against each sector's keyword list.
+    Returns the highest-scoring sector, or 'General' if no sector
+    meets the minimum threshold or if there is a tie.
+    """
+    chunk_upper = chunk.upper()
+    scores: dict[str, int] = {sector: 0 for sector in SECTOR_KEYWORDS}
+
+    for sector, keywords in SECTOR_KEYWORDS.items():
+        for keyword in keywords:
+            if keyword in chunk_upper:
+                scores[sector] += 1
+
+    best_sector = max(scores, key=lambda s: scores[s])
+    best_score = scores[best_sector]
+
+    # Check for a tie between two or more sectors
+    top_scores = [s for s, score in scores.items() if score == best_score]
+
+    if best_score < MIN_SCORE_THRESHOLD or len(top_scores) > 1:
+        return "General"
+
+    return best_sector
+
+
+# --- Validate KB file exists before doing any heavy work ---
+if not os.path.exists(KB_FILE):
+    raise FileNotFoundError(
+        f"Knowledge base file '{KB_FILE}' not found. "
+        "Ensure the file is placed at the expected path before running."
+    )
+
+# --- Initialize Client & Embeddings ---
 client = QdrantClient(path=DB_PATH)
 embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
-# Splitter: 500 chars is good for bge-small to keep context dense
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=50,
-    separators=["\n\n", "\n", " ", ""]
-)
-
-# 1. Nuke and recreate collection
+# --- Nuke and recreate collection ---
 if client.collection_exists(COLLECTION_NAME):
     client.delete_collection(COLLECTION_NAME)
+    logger.info(f"Deleted existing collection '{COLLECTION_NAME}'.")
 
 client.create_collection(
     collection_name=COLLECTION_NAME,
     vectors_config=VectorParams(size=384, distance=Distance.COSINE),
 )
+logger.info(f"Created fresh collection '{COLLECTION_NAME}'.")
 
-# 2. Process Files
+# --- Process the Master File ---
+with open(KB_FILE, "r", encoding="utf-8") as f:
+    raw_text = f.read()
+
+raw_chunks = raw_text.split("\n---\n")
+
 all_points = []
 point_id = 1
+sector_counts: dict[str, int] = {}
 
-if not os.path.exists(DATA_DIR):
-    print(f"Error: {DATA_DIR} does not exist.")
-    exit()
-
-for filename in os.listdir(DATA_DIR):
-    if not filename.endswith(".md"):
-        continue
-        
-    with open(os.path.join(DATA_DIR, filename), 'r', encoding='utf-8') as f:
-        raw_text = f.read()
-
-    # Apply the last-minute aggressive cleaning
-    clean_text = final_clean(raw_text)
-    
-    if not clean_text:
+for chunk in raw_chunks:
+    chunk = chunk.strip()
+    if len(chunk) < 50:
         continue
 
-    # Split into chunks
-    chunks = text_splitter.split_text(clean_text)
+    chunk_id_match = re.search(r"## (CHUNK \d+)", chunk)
+    chunk_id = chunk_id_match.group(1) if chunk_id_match else f"UNKNOWN_{point_id}"
 
-    for i, chunk_text in enumerate(chunks):
-        if len(chunk_text.strip()) < 30: # Slightly higher threshold for junk
-            continue
+    sector = classify_sector(chunk)
 
-        vector = embeddings.embed_query(chunk_text)
-        
-        all_points.append(PointStruct(
-            id=point_id,
-            vector=vector,
-            payload={
-                "page_content": chunk_text,
-                "metadata": {
-                    "source": filename,
-                    "chunk_id": i
-                }
-            }
-        ))
-        point_id += 1
+    # Audit log so you can verify classifications after running
+    sector_counts[sector] = sector_counts.get(sector, 0) + 1
+    logger.info(f"  {chunk_id:<20} -> {sector}")
 
-# 3. Batch Upload
+    vector = embeddings.embed_query(chunk)
+
+    all_points.append(PointStruct(
+        id=point_id,
+        vector=vector,
+        payload={
+            "page_content": chunk,
+            "metadata": {
+                "source": KB_FILE,
+                "chunk_id": chunk_id,
+                "sector": sector,
+            },
+        },
+    ))
+    point_id += 1
+
+# --- Batch Upload ---
 if all_points:
     client.upsert(collection_name=COLLECTION_NAME, points=all_points)
-    print(f"✅ Successfully indexed {len(all_points)} chunks.")
+    logger.info(f"\nSuccessfully indexed {len(all_points)} chunks.")
+    logger.info("\nSector distribution:")
+    for sector, count in sorted(sector_counts.items()):
+        logger.info(f"  {sector:<20} {count} chunks")
 else:
-    print("⚠️ No valid content found to index.")
+    logger.warning("No valid content found to index.")
 
-# 4. Explicit close to prevent the msvcrt import error
 client.close()

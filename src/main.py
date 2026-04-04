@@ -5,10 +5,11 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from pydantic import BaseModel
 
-from core_logic import (
+from og.core_logic import (
+    BASELINE_FACTS,
     get_rag_components,
     get_sector_filter,
     get_soft_search_results,
@@ -105,7 +106,7 @@ async def chat_endpoint(payload: ChatRequest, req: Request):
     try:
         # Short-circuit identity questions before hitting the RAG pipeline
         if is_identity_question(prompt):
-            return {"reply": IDENTITY_REPLY}
+            return ChatResponse(reply=IDENTITY_REPLY)
 
         # 1. Routing
         sector = get_sector_filter(prompt, critic_llm)
@@ -115,49 +116,51 @@ async def chat_endpoint(payload: ChatRequest, req: Request):
         context = "\n\n".join([d.page_content for d in docs])
 
         # 3. Generation
+        # FIX: BASELINE_FACTS is now a single source of truth imported from core_logic.
+        # Both the generator and auditor use the same constant, so they can never go out of sync.
         system_prompt = f"""
-        ### ROLE: Corporate Analyst
-        Rules: Use ONLY the provided context to answer the user's query. You are permitted to synthesize related themes (e.g., summarizing strategic goals to answer a "mission" question) if the text contains relevant corporate strategy.
+            ### ROLE: Corporate Analyst
+            Rules: Use ONLY the provided context and baseline facts to answer the user's query. You are permitted to synthesize related themes if the text contains relevant corporate strategy.
+            
+            CRITICAL THRESHOLD: If the context and baseline facts are completely irrelevant and offer absolutely no foundational information to address the query, you must output EXACTLY the word "UNANSWERABLE" and nothing else. Do not apologize.
+            
+            {BASELINE_FACTS}
+            
+            RETRIEVED CONTEXT: {context}
+            """
 
-        CRITICAL THRESHOLD: If the context is completely irrelevant and offers absolutely no foundational information to address the query, you must output EXACTLY the word "UNANSWERABLE" and nothing else. Do not apologize.
+        # FIX: Conversation history is now built into the message list so the LLM
+        # has full context of the conversation and can give coherent follow-up answers.
+        messages = [SystemMessage(content=system_prompt)]
+        for item in payload.history:
+            if item.role == "user":
+                messages.append(HumanMessage(content=item.text))
+            else:
+                messages.append(AIMessage(content=item.text))
+        messages.append(HumanMessage(content=prompt))
 
-        CONTEXT: {context}
-        """
-
-        llm_response = gen_llm.invoke(
-            [SystemMessage(content=system_prompt), HumanMessage(content=prompt)]
-        )
-        raw_content = getattr(llm_response, "content", llm_response)
-
-        if isinstance(raw_content, str):
-            initial_res = raw_content.strip()
-        elif isinstance(raw_content, list):
-            initial_res = " ".join(
-                part
-                if isinstance(part, str)
-                else str(part.get("text", ""))
-                if isinstance(part, dict)
-                else str(part)
-                for part in raw_content
-            ).strip()
-        else:
-            initial_res = str(raw_content).strip()
+        llm_response = gen_llm.invoke(messages)
+        initial_res = llm_response.content.strip()
 
         # 4. Audit & Short-Circuit
         if "UNANSWERABLE" in initial_res.upper():
             final_reply = "I lack the corporate documentation to answer this question. The current database does not contain this information."
         else:
-            audit_result = verify_response(critic_llm, context, initial_res)
+            # Combine baseline facts with retrieved context so the auditor
+            # doesn't falsely flag known corporate facts as hallucinations.
+            full_audit_context = f"{BASELINE_FACTS}\n{context}"
+
+            audit_result = verify_response(critic_llm, full_audit_context, initial_res)
 
             if audit_result.get("is_hallucinated", False):
                 reason = audit_result.get("reason", "Unknown hallucination")
                 final_reply = self_correct(
-                    gen_llm, context, prompt, initial_res, reason
+                    gen_llm, full_audit_context, prompt, initial_res, reason
                 )
             else:
                 final_reply = initial_res
 
-        return {"reply": final_reply}
+        return ChatResponse(reply=final_reply)
 
     except Exception as e:
         raise HTTPException(
