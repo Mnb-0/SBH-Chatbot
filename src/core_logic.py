@@ -23,6 +23,9 @@ BASELINE_FACTS = """
     - Phone: +966 138127397
     - Established: 1979 (Trading), 2013 (Holding Group)
     """
+    
+    
+AUDIT_MIN_LENGTH = 100
 
 
 def get_rag_components(api_key):
@@ -31,11 +34,11 @@ def get_rag_components(api_key):
         raise ValueError("API Key is missing. Check your environment variables.")
 
     embeddings = FastEmbedEmbeddings(
-        model_name="BAAI/bge-small-en-v1.5", providers=["CUDAExecutionProvider", "ROCMExecutionProvider", "CPUExecutionProvider"]
+        model_name="BAAI/bge-small-en-v1.5", providers=["CPUExecutionProvider"]
     )
 
     db_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "qdrant_db_clean"
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "qdrant_db"
     )
     if not os.path.exists(db_path):
         raise FileNotFoundError(

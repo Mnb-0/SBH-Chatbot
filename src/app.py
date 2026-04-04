@@ -1,9 +1,15 @@
 import os
 import re
 import streamlit as st
+
+from dotenv import load_dotenv # <-- ADD THIS
+
+# Load environment variables before anything else
+load_dotenv() # <-- ADD THIS
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from core_logic import (
     BASELINE_FACTS,
+    AUDIT_MIN_LENGTH,
     get_rag_components,
     get_sector_filter,
     get_soft_search_results,
@@ -18,18 +24,36 @@ IDENTITY_REPLY = (
     "How can I help you today?"
 )
 
-_IDENTITY_PATTERNS = re.compile(
-    r"\b(who|what)\s+(are|is)\s+(you|this|ur)\b"
+# FIX: Expanded to catch greetings and casual openers so they never hit the
+# RAG pipeline or the 70B critic — they get an instant friendly reply instead.
+_CASUAL_PATTERNS = re.compile(
+    r"^\s*(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy|greetings|salaam|marhaba)[\s!?.]*$"
+    r"|^\s*(thanks|thank you|thx|ty)[\s!?.]*$"
+    r"|\b(who|what)\s+(are|is)\s+(you|this|ur)\b"
     r"|\bwhat\s+(can|do)\s+you\b"
     r"|\byour\s+(name|purpose|role|job|function)\b"
     r"|\bintroduce\s+yourself\b"
-    r"|\bwhat\s+are\s+you\b",
+    r"|\bwhat\s+are\s+you\b"
+    r"|\btell me about yourself\b"
+    r"|\bwhat can you do\b",
     re.IGNORECASE,
 )
 
+_GREETING_REPLIES = {
+    "hi": "Hello! How can I help you with Salem Balhamer Holding Group today?",
+    "hello": "Hello! How can I help you with Salem Balhamer Holding Group today?",
+    "hey": "Hey there! Feel free to ask me anything about SBH.",
+    "thanks": "You're welcome! Let me know if there's anything else I can help with.",
+    "thank you": "You're welcome! Let me know if there's anything else I can help with.",
+}
 
-def is_identity_question(text: str) -> bool:
-    return bool(_IDENTITY_PATTERNS.search(text))
+
+def get_casual_reply(text: str) -> str | None:
+    """Returns a canned reply for greetings/identity questions, or None if not casual."""
+    if not _CASUAL_PATTERNS.search(text):
+        return None
+    lower = text.strip().lower().rstrip("!?. ")
+    return _GREETING_REPLIES.get(lower, IDENTITY_REPLY)
 
 
 st.set_page_config(page_title="Salem Balhamer Intel", page_icon="🏢", layout="wide")
@@ -71,10 +95,15 @@ if prompt := st.chat_input("Ask about the group..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        if is_identity_question(prompt):
-            final_reply = IDENTITY_REPLY
-            st.markdown(final_reply)
-            st.session_state.messages.append({"role": "assistant", "content": final_reply})
+
+        # FIX: Casual messages (greetings, identity questions) are caught here and
+        # returned instantly — no RAG retrieval, no routing, no 70B critic call.
+        # This was the main cause of slow replies and wasted tokens on simple inputs.
+        casual_reply = get_casual_reply(prompt)
+        if casual_reply:
+            st.markdown(casual_reply)
+            st.session_state.messages.append({"role": "assistant", "content": casual_reply})
+
         else:
             with st.status("🧠 Analyzing Context...") as s:
                 sector = get_sector_filter(prompt, critic_llm)
@@ -84,23 +113,26 @@ if prompt := st.chat_input("Ask about the group..."):
                 context = "\n\n".join([d.page_content for d in docs])
                 s.update(label="Knowledge Retrieved", state="complete")
 
-            # FIX: BASELINE_FACTS imported from core_logic — single source of truth.
-            # The duplicate hardcoded block that was here has been removed.
             system_prompt = f"""
-            ### ROLE: Corporate Analyst
-            Rules: Use ONLY the provided context and baseline facts to answer the user's query. You are permitted to synthesize related themes if the text contains relevant corporate strategy.
-            
-            CRITICAL THRESHOLD: If the context and baseline facts are completely irrelevant and offer absolutely no foundational information to address the query, you must output EXACTLY the word "UNANSWERABLE" and nothing else. Do not apologize.
-            
+            ### ROLE: Salem Balhamer Holding Group — Corporate Intelligence Assistant
+
+            RULES:
+            1. Answer using ONLY the provided context and baseline facts. Do not invent or infer details.
+            2. Always respond in the same language the user writes in. If the user writes in Arabic, reply in Arabic.
+            3. If the context partially addresses the query, answer what you can from the available information, then clearly state you have limited information on the specific point.
+            4. Never state specific financial figures, employee counts, or statistics unless they are explicitly present in the retrieved context. If asked, acknowledge you don't have that data.
+            5. If asked to compare SBH with competitors or comment on weaknesses, redirect professionally: do not engage with the comparison, and suggest the user contact the SBH team directly.
+            6. Maintain a professional and approachable tone. Be concise. Do not use filler phrases like "Certainly!" or "Great question!".
+            7. If your answer is incomplete or the user needs further details, always close your response with: "For further information, please contact Salem Balhamer Holding Group at +966 138127397 or visit us at Balhamer Business Gate, Dammam."
+            8. If the context and baseline facts offer absolutely no relevant information to address the query, output EXACTLY the word "UNANSWERABLE" and nothing else.
+
             {BASELINE_FACTS}
-            
+
             RETRIEVED CONTEXT: {context}
             """
 
-            # FIX: Conversation history is now built into the message list so the LLM
-            # has full context of prior turns and can answer follow-up questions correctly.
             messages = [SystemMessage(content=system_prompt)]
-            for msg in st.session_state.messages[:-1]:  # exclude the current prompt
+            for msg in st.session_state.messages[:-1]:
                 if msg["role"] == "user":
                     messages.append(HumanMessage(content=msg["content"]))
                 else:
@@ -109,14 +141,26 @@ if prompt := st.chat_input("Ask about the group..."):
 
             initial_res = gen_llm.invoke(messages).content.strip()
 
-            # FIX: full_audit_context defined once before the if/else block so it's
-            # always available to both the expander and the self_correct call.
             full_audit_context = f"{BASELINE_FACTS}\n{context}"
 
             if "UNANSWERABLE" in initial_res.upper():
-                final_reply = "I lack the corporate documentation to answer this question. The current database does not contain this information."
+                final_reply = (
+                    "That's outside what I currently have on record. "
+                    "For the most accurate information, please reach out to the SBH team directly at "
+                    "+966 138127397 or visit us at Balhamer Business Gate, Dammam."
+                )
                 with st.expander("🛡️ Auditor's Report"):
                     st.info("Valid Refusal: Context was insufficient. Audit bypassed to save compute.")
+
+            # FIX: Short answers (greetings that slipped through, one-liners) skip
+            # the 70B critic entirely. Auditing a 10-word answer with a 70B model
+            # is pure token waste — the risk of hallucination in short factual
+            # answers is negligible.
+            elif len(initial_res) < AUDIT_MIN_LENGTH:
+                final_reply = initial_res
+                with st.expander("🛡️ Auditor's Report"):
+                    st.info("Short answer: Audit skipped to save compute.")
+
             else:
                 with st.expander("🛡️ Auditor's Report"):
                     audit_result = verify_response(critic_llm, full_audit_context, initial_res)
