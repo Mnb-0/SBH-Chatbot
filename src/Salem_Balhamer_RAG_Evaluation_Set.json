@@ -1,0 +1,1097 @@
+{
+  "metadata": {
+    "name": "Salem Balhamer Holding Group — RAG Evaluation Dataset",
+    "version": "1.0",
+    "created": "2026-04-01",
+    "total_questions": 120,
+    "purpose": "Automated evaluation of RAG chatbot via RAGAS, DeepEval, or LLM-as-Judge",
+    "scoring_rubrics": {
+      "faithfulness": "1=hallucinated facts, 2=mostly hallucinated, 3=mix of grounded and ungrounded, 4=mostly grounded with minor drift, 5=every claim supported by retrieved context",
+      "answer_relevance": "1=completely off-topic, 2=tangentially related, 3=partially addresses query, 4=addresses query with minor extras, 5=directly and fully addresses the query",
+      "completeness": "1=misses all key points, 2=covers <25%, 3=covers ~50%, 4=covers ~75%, 5=covers all key points from ground truth",
+      "correctness": "1=all facts wrong, 2=mostly wrong, 3=mix, 4=mostly correct with minor errors, 5=all facts match ground truth exactly",
+      "context_relevance": "1=retrieved chunks completely irrelevant, 2=mostly irrelevant, 3=partially relevant, 4=mostly relevant, 5=all retrieved chunks directly relevant to query"
+    },
+    "query_type_distribution": {
+      "direct_factual": 30,
+      "sector_specific": 25,
+      "multi_hop_cross_sector": 15,
+      "numerical_statistical": 12,
+      "comparison": 10,
+      "ambiguous_vague": 8,
+      "out_of_scope": 10,
+      "edge_case_negative": 10
+    }
+  },
+
+  "evaluation_set": [
+
+    {
+      "id": "DF-001",
+      "query_type": "direct_factual",
+      "question": "When was Salem Balhamer Holding Group established?",
+      "expected_answer": "The business was launched in 1979 in the trading sector. The Holding Group was formally established in 2013, consolidating more than 20 companies under one umbrella.",
+      "source_chunks": ["CHUNK_01", "CHUNK_02"],
+      "key_facts": ["1979", "2013", "20+ companies"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "DF-002",
+      "query_type": "direct_factual",
+      "question": "Who is the founder of Salem Balhamer Holding Group?",
+      "expected_answer": "Sheikh Salem Ahmed Balhamer is the founder and Chairman of the Board.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["Sheikh Salem Ahmed Balhamer", "founder", "Chairman"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-003",
+      "query_type": "direct_factual",
+      "question": "Who is the CEO of Salem Balhamer Holding?",
+      "expected_answer": "Ahmed Salem Balhamer, son of the founder. He holds a BBA (2000–2004) from Welingkar Institute of Management and previously held leadership roles at FABCO Plastic Factory and Salem Balhamer Plastic Factory.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["Ahmed Salem Balhamer", "son of founder", "Welingkar Institute"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "DF-004",
+      "query_type": "direct_factual",
+      "question": "Where is the headquarters of Salem Balhamer Holding Group located?",
+      "expected_answer": "Balhamer Business Gate, Floor 20, Al Ashriah Street, Dammam, Eastern Province, Kingdom of Saudi Arabia. PO Box 150, Dammam.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["Balhamer Business Gate", "Floor 20", "Dammam", "Eastern Province"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-005",
+      "query_type": "direct_factual",
+      "question": "What is the phone number for Salem Balhamer Holding?",
+      "expected_answer": "+966 138127397",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["+966 138127397"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-006",
+      "query_type": "direct_factual",
+      "question": "How many employees does Salem Balhamer Group have?",
+      "expected_answer": "201–500 employees.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["201–500"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-007",
+      "query_type": "direct_factual",
+      "question": "What is the vision of Salem Balhamer Holding Group?",
+      "expected_answer": "To be a leading conglomerate holding company, recognized for its diversified investments and significant contribution to the Kingdom's economy.",
+      "source_chunks": ["CHUNK_03"],
+      "key_facts": ["leading conglomerate", "diversified investments", "Kingdom's economy"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "DF-008",
+      "query_type": "direct_factual",
+      "question": "Who is the CFO of Salem Balhamer Group?",
+      "expected_answer": "Medhat AlAshi.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["Medhat AlAshi"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-009",
+      "query_type": "direct_factual",
+      "question": "What are the core values of Salem Balhamer Holding Group?",
+      "expected_answer": "The seven core values are: Commitment, Transparency, Professionalism, Respect, Credibility, Community Responsibility, and Safety.",
+      "source_chunks": ["CHUNK_04"],
+      "key_facts": ["Commitment", "Transparency", "Professionalism", "Respect", "Credibility", "Community Responsibility", "Safety"],
+      "evaluation_focus": ["completeness", "correctness"]
+    },
+    {
+      "id": "DF-010",
+      "query_type": "direct_factual",
+      "question": "When was FABCO Plastic Factory established?",
+      "expected_answer": "FABCO Plastic Factory Co. Ltd. was established in 1975 in the 2nd Industrial City, Dammam, Eastern Province. It was acquired by Salem Balhamer in 1995 and became a core group tributary by 2001.",
+      "source_chunks": ["CHUNK_07", "CHUNK_02"],
+      "key_facts": ["1975", "2nd Industrial City", "Dammam", "acquired 1995"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "DF-011",
+      "query_type": "direct_factual",
+      "question": "What certifications does FABCO Plastic Factory hold?",
+      "expected_answer": "FABCO holds ISO 9002, and complies with ASTM (American), DIN (German), BS (British), and SASO (Saudi) standards. It also has multiple medals and certificates from Arab countries.",
+      "source_chunks": ["CHUNK_07"],
+      "key_facts": ["ISO 9002", "ASTM", "DIN", "BS", "SASO"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "DF-012",
+      "query_type": "direct_factual",
+      "question": "Who is the General Manager of the HVAC division?",
+      "expected_answer": "Salah Al-Banaa.",
+      "source_chunks": ["CHUNK_01", "CHUNK_16"],
+      "key_facts": ["Salah Al-Banaa"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-013",
+      "query_type": "direct_factual",
+      "question": "When was ICON Training Company established?",
+      "expected_answer": "ICON Training Company was established in 2022.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["2022"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-014",
+      "query_type": "direct_factual",
+      "question": "What is the website of Salem Balhamer HVAC?",
+      "expected_answer": "https://salembalhamer-hvac.com.sa/",
+      "source_chunks": ["CHUNK_16", "CHUNK_26"],
+      "key_facts": ["salembalhamer-hvac.com.sa"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-015",
+      "query_type": "direct_factual",
+      "question": "Who heads public relations at Salem Balhamer Holding?",
+      "expected_answer": "Amani Salem Ahmed Balhamer, daughter of the founder, is the Head of Public Relations and Administrative Affairs.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["Amani Salem Ahmed Balhamer", "daughter of founder"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-016",
+      "query_type": "direct_factual",
+      "question": "What is Salem Balhamer Group's estimated annual revenue?",
+      "expected_answer": "The estimated annual revenue was $20.1 million in 2024.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["$20.1 million", "2024"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-017",
+      "query_type": "direct_factual",
+      "question": "What is the Qatra certificate?",
+      "expected_answer": "The Qatra (Drop) certificate is from the National Program for Water Conservation, awarded for manufacturing products that help preserve non-renewable water resources, supporting Vision 2030's national transformation in the water sector.",
+      "source_chunks": ["CHUNK_13", "CHUNK_23"],
+      "key_facts": ["National Program for Water Conservation", "non-renewable water resources", "Vision 2030"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "DF-018",
+      "query_type": "direct_factual",
+      "question": "When was the holding group formally incorporated?",
+      "expected_answer": "2013.",
+      "source_chunks": ["CHUNK_01", "CHUNK_02"],
+      "key_facts": ["2013"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-019",
+      "query_type": "direct_factual",
+      "question": "What is the Best Place to Work certification for?",
+      "expected_answer": "Salem Balhamer Holding Group was recognized with the Best Place to Work certification for 2024–2025.",
+      "source_chunks": ["CHUNK_01", "CHUNK_22"],
+      "key_facts": ["2024–2025"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-020",
+      "query_type": "direct_factual",
+      "question": "Who is Abdullah Al Yami?",
+      "expected_answer": "Abdullah Al Yami is the CEO of ICON Advanced Co. Ltd., a fully owned subsidiary of Salem Balhamer Holding focused on technology investment and the solar energy joint venture with Valoe Oyj.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["CEO", "ICON Advanced", "solar energy"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "DF-021",
+      "query_type": "direct_factual",
+      "question": "What are the working hours for Salem Balhamer HVAC?",
+      "expected_answer": "Saturday to Thursday, 8:00 AM – 5:00 PM.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["Saturday–Thursday", "8:00 AM", "5:00 PM"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-022",
+      "query_type": "direct_factual",
+      "question": "When was Salem Balhamer General Contracting Co. established?",
+      "expected_answer": "1993, established as an individual organization by Sheikh Salem bin Ahmed Balhamer.",
+      "source_chunks": ["CHUNK_15", "CHUNK_02"],
+      "key_facts": ["1993"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-023",
+      "query_type": "direct_factual",
+      "question": "What raw materials does FABCO use?",
+      "expected_answer": "FABCO uses polypropylene, PVC, CPVC, UPVC, and HDPE as raw materials for manufacturing.",
+      "source_chunks": ["CHUNK_07"],
+      "key_facts": ["polypropylene", "PVC", "CPVC", "UPVC", "HDPE"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "DF-024",
+      "query_type": "direct_factual",
+      "question": "What is Ryadah's website?",
+      "expected_answer": "https://ryadah.com.sa/",
+      "source_chunks": ["CHUNK_18", "CHUNK_26"],
+      "key_facts": ["ryadah.com.sa"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-025",
+      "query_type": "direct_factual",
+      "question": "When was the thermoforming production line added to the containers factory?",
+      "expected_answer": "August 1, 2023.",
+      "source_chunks": ["CHUNK_09", "CHUNK_02"],
+      "key_facts": ["August 2023", "thermoforming"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-026",
+      "query_type": "direct_factual",
+      "question": "In which countries does Salem Balhamer Real Estate operate?",
+      "expected_answer": "KSA, Bahrain, and Egypt.",
+      "source_chunks": ["CHUNK_18"],
+      "key_facts": ["KSA", "Bahrain", "Egypt"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "DF-027",
+      "query_type": "direct_factual",
+      "question": "What does Namaa & Injaz specialize in?",
+      "expected_answer": "Namaa & Injaz for Information Technology Company specializes in communications infrastructure and information security.",
+      "source_chunks": ["CHUNK_20"],
+      "key_facts": ["communications infrastructure", "information security"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-028",
+      "query_type": "direct_factual",
+      "question": "What is the ownership split in the Valoe joint venture?",
+      "expected_answer": "ICON Advanced holds 60% and Valoe Oyj holds 40% of the joint venture.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["ICON 60%", "Valoe 40%"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-029",
+      "query_type": "direct_factual",
+      "question": "When was Al Jubail HIT Factory acquired by the group?",
+      "expected_answer": "Al Jubail HIT Factory was originally established in 2005 and acquired by Salem Balhamer Holding Group in 2022.",
+      "source_chunks": ["CHUNK_11", "CHUNK_02"],
+      "key_facts": ["2005", "acquired 2022"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "DF-030",
+      "query_type": "direct_factual",
+      "question": "Who is Badr Bakhshwain?",
+      "expected_answer": "Badr Bakhshwain is the General Manager of Factories at Salem Balhamer Holding Group.",
+      "source_chunks": ["CHUNK_01", "CHUNK_23"],
+      "key_facts": ["General Manager of Factories"],
+      "evaluation_focus": ["correctness"]
+    },
+
+    {
+      "id": "SS-001",
+      "query_type": "sector_specific",
+      "question": "What sectors does Salem Balhamer Holding Group operate in?",
+      "expected_answer": "Six main sectors: Industrial, Trading, Contracting, Real Estate Development & Investment, Training & Education, and Services (IT). The Group also has Investment activities and operates in entertainment, oil & gas, healthcare, and legal services.",
+      "source_chunks": ["CHUNK_06", "CHUNK_13", "CHUNK_14", "CHUNK_18", "CHUNK_19", "CHUNK_20", "CHUNK_21"],
+      "key_facts": ["Industrial", "Trading", "Contracting", "Real Estate", "Training & Education", "Services/IT", "Investment"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-002",
+      "query_type": "sector_specific",
+      "question": "How many factories does the industrial sector operate?",
+      "expected_answer": "6 factories in Dammam (2nd Industrial City) and Jubail Industrial City.",
+      "source_chunks": ["CHUNK_06"],
+      "key_facts": ["6 factories", "Dammam", "Jubail"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "SS-003",
+      "query_type": "sector_specific",
+      "question": "What products does the industrial sector manufacture?",
+      "expected_answer": "Pipes, fittings, plastic accessories (PVC, UPVC, CPVC, HDPE), thermal insulators (XPS/EPS), plastic packaging/containers, and metal forming/galvanizing products.",
+      "source_chunks": ["CHUNK_06"],
+      "key_facts": ["pipes", "fittings", "PVC", "HDPE", "thermal insulators", "XPS", "EPS", "metal forming", "galvanizing"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-004",
+      "query_type": "sector_specific",
+      "question": "What HVAC systems can Salem Balhamer install?",
+      "expected_answer": "Chilled water air conditioning systems, VRV/VRF systems, concealed air conditioners, package units, split systems, and central air conditioning systems.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["chilled water", "VRV/VRF", "concealed", "package", "split", "central"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-005",
+      "query_type": "sector_specific",
+      "question": "What services does the general contracting company offer?",
+      "expected_answer": "Nine service categories: Construction and concrete buildings, infrastructure works, electromechanical works, metal constructions, HVAC contracting, finishing and fitting cut works, landscape works, maintenance and operation, and transportation and equipment services.",
+      "source_chunks": ["CHUNK_15"],
+      "key_facts": ["9 services", "construction", "infrastructure", "electromechanical", "metal", "HVAC", "finishing", "landscape", "maintenance", "transportation"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-006",
+      "query_type": "sector_specific",
+      "question": "What training disciplines does ICON Training offer?",
+      "expected_answer": "Six main disciplines: Cyber Security, Management Skills, ISO Standards, Creativity, Safety (occupational safety and health), and Qualifying technicians for Aramco's security and safety work.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["Cyber Security", "Management Skills", "ISO Standards", "Creativity", "Safety", "Aramco"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-007",
+      "query_type": "sector_specific",
+      "question": "What services does Ryadah Real Estate provide?",
+      "expected_answer": "Real estate development and marketing, property and facilities management, project management and engineering supervision, real estate valuation, technical and financial research and studies, real estate consultancy, off-plan sale (Wafi), and investment and real estate marketing.",
+      "source_chunks": ["CHUNK_18"],
+      "key_facts": ["development", "property management", "valuation", "consultancy", "off-plan/Wafi", "marketing"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-008",
+      "query_type": "sector_specific",
+      "question": "What types of thermal insulation products does FABCO produce?",
+      "expected_answer": "FABCO produces EPS and XPS thermal insulation panels for walls and roofs, insulation for blocks (white and blue, expanded and extruded), Foam Hordy (for roofing), decoration panels, Fabco Board Wall (EPS), Fabco Board Roof (XPS), Fabco Block EPS (insulated cement block), and block insert panels.",
+      "source_chunks": ["CHUNK_10"],
+      "key_facts": ["EPS", "XPS", "Fabco Board", "Hordy", "block insert", "decoration"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-009",
+      "query_type": "sector_specific",
+      "question": "Which government entities have approved FABCO's products?",
+      "expected_answer": "Saudi Aramco, Saudi Electricity Company, Ministry of Water/Environment/Agriculture, Ministry of Health, Ministry of Education, and Ministry of Housing.",
+      "source_chunks": ["CHUNK_07"],
+      "key_facts": ["Saudi Aramco", "Saudi Electricity Company", "Ministry of Water", "Ministry of Health", "Ministry of Education", "Ministry of Housing"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-010",
+      "query_type": "sector_specific",
+      "question": "What electromechanical services does the contracting company provide?",
+      "expected_answer": "Internal electrical wiring, electronic panels, main electrical cable lines extension, building control systems installation, fire systems, alarm and control systems, access/exit control, TV channels/data/server cable extension, drinking water networks, fire extinguishing systems, elevator installation, lifting systems, facade cleaning systems, and ventilation and smoke extraction systems that auto-activate when CO2 levels rise.",
+      "source_chunks": ["CHUNK_15"],
+      "key_facts": ["electrical wiring", "building control", "fire systems", "elevators", "smoke extraction", "CO2"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-011",
+      "query_type": "sector_specific",
+      "question": "What does Salem Balhamer Trading Company distribute?",
+      "expected_answer": "It is the exclusive local agent for all industrial sector products (FABCO, BPF, FABCO Thermal, BPF Containers). It also distributes multi-use plastic pipes and fittings, sanitary/plumbing-ware, thermal insulation products, building materials, plastic containers, and over 35 multinational brands from USA, Italy, China, India, and Canada.",
+      "source_chunks": ["CHUNK_13"],
+      "key_facts": ["exclusive agent", "35+ brands", "USA", "Italy", "China", "India", "Canada"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-012",
+      "query_type": "sector_specific",
+      "question": "What is the real estate portfolio of Salem Balhamer Real Estate?",
+      "expected_answer": "The portfolio includes residential and administrative towers, residential complexes, trading centers, warehouses, villas, and trade shows. Operations span KSA, Bahrain, and Egypt. The company has a strategic partnership with DAMAC Real Estate.",
+      "source_chunks": ["CHUNK_18"],
+      "key_facts": ["towers", "complexes", "warehouses", "villas", "KSA", "Bahrain", "Egypt", "DAMAC"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-013",
+      "query_type": "sector_specific",
+      "question": "What HVAC projects has Salem Balhamer completed?",
+      "expected_answer": "Notable projects include Mirot Tower (concealed AC), a middle school in Taiba district Dammam (350 TR), Al-Hussan Educational School (VRV System 1,900 TR), Horse Schools Academy Dammam (VRV), Hamad Abdul Latif Al-Jaber Oncology Center in Al-Hofuf, Saudi Electricity power stations in Dammam, and residential complex for Maaden phosphate mines in Tarif.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["Mirot Tower", "Al-Hussan", "1900 TR", "Horse Schools", "Oncology Center", "Maaden", "Tarif"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-014",
+      "query_type": "sector_specific",
+      "question": "What thickness of XPS insulation does FABCO recommend for roof insulation in Saudi Arabia?",
+      "expected_answer": "For roof insulation in the hot, dry Saudi climate, FABCO recommends XPS with a density of 30+ kg/m³ and a thickness of 12–15 cm.",
+      "source_chunks": ["CHUNK_10"],
+      "key_facts": ["XPS", "30+ kg/m³", "12–15 cm"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "SS-015",
+      "query_type": "sector_specific",
+      "question": "What is the solar energy joint venture about?",
+      "expected_answer": "ICON Advanced Co. Ltd. (60% ownership) and Valoe Oyj of Finland (40%) formed a joint venture to build a back-contact solar module manufacturing plant in Saudi Arabia. The planned investment is approximately EUR 15 million, with Valoe's delivery valued at EUR 12 million. ICON also markets Valoe's solar products in Saudi Arabia, Dubai, Abu Dhabi, and Oman.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["ICON 60%", "Valoe 40%", "EUR 15 million", "back-contact solar", "Saudi Arabia", "Dubai", "Abu Dhabi", "Oman"],
+      "evaluation_focus": ["completeness", "correctness"]
+    },
+    {
+      "id": "SS-016",
+      "query_type": "sector_specific",
+      "question": "What governance components does Salem Balhamer have?",
+      "expected_answer": "Five components: Information and Management Systems, Family and Corporate Constitution, Digital Transformation & Workflow Mechanisms, Organizational Structure Development, and Service Level Agreements (SLAs).",
+      "source_chunks": ["CHUNK_05"],
+      "key_facts": ["Information Systems", "Constitution", "Digital Transformation", "Organizational Structure", "SLAs"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-017",
+      "query_type": "sector_specific",
+      "question": "What are the five pillars of Salem Balhamer's growth strategy?",
+      "expected_answer": "Market Expansion, Customer Focus, Strategic Partnerships, Digital Transformation, and Total Quality Management.",
+      "source_chunks": ["CHUNK_03"],
+      "key_facts": ["Market Expansion", "Customer Focus", "Strategic Partnerships", "Digital Transformation", "Total Quality Management"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-018",
+      "query_type": "sector_specific",
+      "question": "What types of construction projects has the contracting company completed?",
+      "expected_answer": "Educational facilities, health & medical facilities, housing, infrastructure, service facilities, and commercial and administrative buildings.",
+      "source_chunks": ["CHUNK_15"],
+      "key_facts": ["educational", "health", "housing", "infrastructure", "commercial"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-019",
+      "query_type": "sector_specific",
+      "question": "How does the HVAC division support community?",
+      "expected_answer": "Salem Balhamer HVAC launched a community initiative in partnership with Tarmem Association to install and maintain air conditioning units for homes of needy families in the Eastern Region.",
+      "source_chunks": ["CHUNK_16", "CHUNK_23"],
+      "key_facts": ["Tarmem Association", "needy families", "Eastern Region"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "SS-020",
+      "query_type": "sector_specific",
+      "question": "What employee benefits does Salem Balhamer Holding offer?",
+      "expected_answer": "Occupational safety programs, financial motivation (commissions, incentives, profit-sharing), social events, skills development and career growth training, on-the-job training, open-door communication policy, new employee introductory programs, and Coordination and Follow-up Committee for inter-departmental communication.",
+      "source_chunks": ["CHUNK_22"],
+      "key_facts": ["safety", "commissions", "profit-sharing", "training", "open-door policy"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-021",
+      "query_type": "sector_specific",
+      "question": "What countries does Salem Balhamer export industrial products to?",
+      "expected_answer": "Over 30 countries across GCC, Middle East, Asia, Africa, and Europe. The Group also has operations in Bahrain, Egypt, and Yemen, and distributes solar products in UAE and Oman.",
+      "source_chunks": ["CHUNK_06", "CHUNK_07", "CHUNK_24"],
+      "key_facts": ["30+ countries", "GCC", "Middle East", "Asia", "Africa", "Europe"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-022",
+      "query_type": "sector_specific",
+      "question": "What industry knowledge domains does ICON Training cover?",
+      "expected_answer": "Oil, gas, electrical, mechanical, air-conditioning, and metallurgical industries.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["oil", "gas", "electrical", "mechanical", "air-conditioning", "metallurgical"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-023",
+      "query_type": "sector_specific",
+      "question": "What products does the plastic containers factory make?",
+      "expected_answer": "Cans, plates, cups for cold and hot drinks, forks and spoons — produced using injection moulding and thermoforming technologies.",
+      "source_chunks": ["CHUNK_09"],
+      "key_facts": ["cans", "plates", "cups", "forks", "spoons", "thermoforming", "injection moulding"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-024",
+      "query_type": "sector_specific",
+      "question": "What exhibitions has the Group participated in recently?",
+      "expected_answer": "IKTVA 2025 Forum, SABIC 2025, Big 5 Construct Saudi 2025 (held February 15–18 at Riyadh Front Exhibition Center), and the Saudi Pavilion at The Big 5 international construction event.",
+      "source_chunks": ["CHUNK_07", "CHUNK_02", "CHUNK_24"],
+      "key_facts": ["IKTVA 2025", "SABIC 2025", "Big 5 Construct Saudi 2025", "February 15–18"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "SS-025",
+      "query_type": "sector_specific",
+      "question": "What is the role of MEPPLUS in the group?",
+      "expected_answer": "MEPPLUS for Electromechanical Works was established to achieve integration between the contracting sector and market needs. It provides electromechanical services for buildings, airports, industrial and public facilities, and integrates with Salem Balhamer HVAC for duct systems and MEP infrastructure. It serves major contracting companies and EPC contractors.",
+      "source_chunks": ["CHUNK_17"],
+      "key_facts": ["electromechanical", "integration", "buildings", "airports", "EPC"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+
+    {
+      "id": "MH-001",
+      "query_type": "multi_hop_cross_sector",
+      "question": "Which Salem Balhamer subsidiaries participated jointly in the IKTVA 2025 Forum?",
+      "expected_answer": "Al Jubail HIT Factory for Steel Fabrication & Galvanizing, FABCO Plastic Factory Co. Ltd., and Salem Balhamer Plastic Factory (BPF) participated jointly in the IKTVA 2025 Forum.",
+      "source_chunks": ["CHUNK_07", "CHUNK_08", "CHUNK_11"],
+      "key_facts": ["Al Jubail HIT", "FABCO", "BPF", "IKTVA 2025"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "MH-002",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How do MEPPLUS and Salem Balhamer HVAC work together?",
+      "expected_answer": "MEPPLUS integrates with Salem Balhamer HVAC for duct system installation and MEP infrastructure. MEPPLUS provides electromechanical works while HVAC focuses on air conditioning design, supply, installation, and maintenance. Together they offer comprehensive building services including various duct types (galvanized, pre-insulated foam, fabric) for construction projects.",
+      "source_chunks": ["CHUNK_16", "CHUNK_17"],
+      "key_facts": ["duct systems", "MEP infrastructure", "integration", "electromechanical"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "MH-003",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How does the trading sector connect to the industrial sector?",
+      "expected_answer": "Salem Balhamer Trading Company is the exclusive local agent and distributor of all industrial sector products from FABCO Plastic Factory, Salem Balhamer Plastic Factory (BPF), FABCO Thermal Insulation Factory, and Salem Balhamer Plastic Containers Factory. It markets these products locally and exports to over 30 countries.",
+      "source_chunks": ["CHUNK_13", "CHUNK_06"],
+      "key_facts": ["exclusive agent", "FABCO", "BPF", "Thermal", "Containers", "30+ countries"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "MH-004",
+      "query_type": "multi_hop_cross_sector",
+      "question": "Which Balhamer family members hold leadership positions in the Group?",
+      "expected_answer": "Sheikh Salem Ahmed Balhamer is the founder and Chairman of the Board. His son Ahmed Salem Balhamer is the CEO. His daughter Amani Salem Ahmed Balhamer is the Head of Public Relations and Administrative Affairs.",
+      "source_chunks": ["CHUNK_01", "CHUNK_23"],
+      "key_facts": ["Salem Ahmed Balhamer/Chairman", "Ahmed Salem Balhamer/CEO", "Amani/PR Head"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "MH-005",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How does the contracting sector integrate with HVAC across projects?",
+      "expected_answer": "Salem Balhamer General Contracting provides HVAC contracting as one of its nine service categories, handling supply and installation of central and unit AC systems. AIR ZONE / Salem Balhamer HVAC serves as the specialized HVAC subsidiary, and MEPPLUS handles electromechanical integration including duct systems. This creates a vertically integrated capability from construction to HVAC to maintenance.",
+      "source_chunks": ["CHUNK_14", "CHUNK_15", "CHUNK_16", "CHUNK_17"],
+      "key_facts": ["integration", "general contracting HVAC service", "AIR ZONE specialized", "MEPPLUS electromechanical"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "MH-006",
+      "query_type": "multi_hop_cross_sector",
+      "question": "Name all the CSR initiatives and which group executives signed them.",
+      "expected_answer": "1. 'Fina Khair' / 'Tadafur' with Albir Society — signed by Ahmed Salem Balhamer (CEO). 2. 'Litadum Al-Neem' with Eta'am Society — signed by Badr Bakhshwain (GM Factories). 3. 'Sustainable Technology' with Ertiqaa Association — signed by Dr. Abdullah Mohammed Al-Baz (GM Customer Service). 4. 'Wa'ed' with Benaa Society — signed by Amani Salem Balhamer (Head PR). 5. 'Diwaniya Balhamer' with Shabab Mujtama'i — signed by Ahmed Salem Balhamer (CEO).",
+      "source_chunks": ["CHUNK_23"],
+      "key_facts": ["5 initiatives", "Ahmed/CEO", "Badr/factories", "Abdullah/customer service", "Amani/PR"],
+      "evaluation_focus": ["completeness", "correctness"]
+    },
+    {
+      "id": "MH-007",
+      "query_type": "multi_hop_cross_sector",
+      "question": "Which subsidiaries were established in 2022?",
+      "expected_answer": "Three entities were established or acquired in 2022: ICON Training Company, MEPPLUS for Electromechanical Works, and Al Jubail HIT Factory was acquired by the Group.",
+      "source_chunks": ["CHUNK_02"],
+      "key_facts": ["ICON Training", "MEPPLUS", "Al Jubail HIT acquired"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "MH-008",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How does FABCO Thermal Insulation relate to FABCO Plastic Factory?",
+      "expected_answer": "FABCO Thermal Insulators Factory was established to enhance the integration of industrial products produced by FABCO Plastic Factory. It meets the market need for thermal insulation products and contributes to rationalizing energy uses. Both are under the Salem Balhamer Holding Group's industrial sector and their products are distributed by Salem Balhamer Trading Company.",
+      "source_chunks": ["CHUNK_10", "CHUNK_06", "CHUNK_13"],
+      "key_facts": ["integration", "energy rationalization", "both under industrial sector", "distributed by Trading"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "MH-009",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How does Salem Balhamer align with Saudi Vision 2030 across multiple sectors?",
+      "expected_answer": "The Group aligns with Vision 2030 through: industrial modernization and supporting non-oil GDP (industrial sector), water conservation via Qatra certification (trading sector), human capital development and Saudi youth empowerment (ICON Training), clean energy investment in solar manufacturing (ICON Advanced/Valoe JV), digital transformation in operations, and community development through CSR initiatives.",
+      "source_chunks": ["CHUNK_03", "CHUNK_06", "CHUNK_13", "CHUNK_19", "CHUNK_23"],
+      "key_facts": ["non-oil GDP", "Qatra", "ICON Training", "solar JV", "digital transformation", "CSR"],
+      "evaluation_focus": ["completeness", "faithfulness"]
+    },
+    {
+      "id": "MH-010",
+      "query_type": "multi_hop_cross_sector",
+      "question": "What happened in the Group in 2015?",
+      "expected_answer": "Two factories were established in 2015: Salem Balhamer Plastic Containers Factory in 2nd Industrial City, Dammam, and FABCO Thermal Insulators Factory (which began production in 2016) in the same location.",
+      "source_chunks": ["CHUNK_02", "CHUNK_09", "CHUNK_10"],
+      "key_facts": ["Containers Factory", "Thermal Insulators Factory", "2015", "Dammam"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "MH-011",
+      "query_type": "multi_hop_cross_sector",
+      "question": "Which subsidiaries have their own dedicated websites?",
+      "expected_answer": "FABCO Plastic Factory (fabcoplastic.com), Salem Balhamer Plastic/BPF (salembalhamerplastic.com), FABCO Thermal Insulation (fabcopolystyrene.com), Salem Balhamer Trading (salembalhamertrading.com), Salem Balhamer General Contracting (salembalhamercont.com), Salem Balhamer HVAC (salembalhamer-hvac.com.sa), Salem Balhamer Real Estate (salembalhamerrealestates.com), and Ryadah (ryadah.com.sa).",
+      "source_chunks": ["CHUNK_26"],
+      "key_facts": ["8 subsidiary websites"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "MH-012",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How does the 'Litadum Al-Neem' CSR initiative connect the industrial and social sectors?",
+      "expected_answer": "The 'Litadum Al-Neem' (To Sustain the Blessings) initiative involves donating plastic containers manufactured by Salem Balhamer Plastic Industries (an industrial subsidiary) to Eta'am Society for food preservation, thereby connecting industrial production capacity with food security and social responsibility goals.",
+      "source_chunks": ["CHUNK_23"],
+      "key_facts": ["plastic containers", "Salem Balhamer Plastic Industries", "Eta'am Society", "food preservation"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "MH-013",
+      "query_type": "multi_hop_cross_sector",
+      "question": "Which sectors involve operations outside Saudi Arabia?",
+      "expected_answer": "Industrial (exports to 30+ countries in GCC, Middle East, Asia, Africa, Europe), Contracting (projects in Bahrain and Yemen), Real Estate (operations in Bahrain and Egypt), Trading (exports to 30+ countries), and Investment (solar product distribution in Dubai, Abu Dhabi, Oman).",
+      "source_chunks": ["CHUNK_06", "CHUNK_14", "CHUNK_18", "CHUNK_13", "CHUNK_19"],
+      "key_facts": ["Industrial exports", "Contracting Bahrain/Yemen", "Real Estate Bahrain/Egypt", "Trading exports", "Solar Dubai/Abu Dhabi/Oman"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "MH-014",
+      "query_type": "multi_hop_cross_sector",
+      "question": "What are the ISO certifications held across the group?",
+      "expected_answer": "FABCO Plastic Factory holds ISO 9002, and FABCO Thermal Insulators Factory holds ISO 9001:2015.",
+      "source_chunks": ["CHUNK_07", "CHUNK_10"],
+      "key_facts": ["ISO 9002/FABCO Plastic", "ISO 9001:2015/FABCO Thermal"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "MH-015",
+      "query_type": "multi_hop_cross_sector",
+      "question": "How does the group ensure quality across its different industrial factories?",
+      "expected_answer": "The Group maintains quality through multiple standards compliance (SASO, ASTM, DIN, BS), ISO certifications (9002 and 9001:2015), government institutional approvals (Aramco, Saudi Electricity, multiple ministries), total quality management as a strategic pillar, and continuous investment in modern production technologies and human capital training.",
+      "source_chunks": ["CHUNK_06", "CHUNK_07", "CHUNK_10", "CHUNK_03"],
+      "key_facts": ["SASO", "ASTM", "DIN", "BS", "ISO", "government approvals", "TQM"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+
+    {
+      "id": "NS-001",
+      "query_type": "numerical_statistical",
+      "question": "How many HVAC units has Salem Balhamer installed?",
+      "expected_answer": "Over 52,161 units across 5,701+ projects.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["52,161+", "5,701+"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-002",
+      "query_type": "numerical_statistical",
+      "question": "What was the planned investment for the Valoe solar joint venture?",
+      "expected_answer": "Approximately EUR 15 million total. Valoe's delivery is valued at approximately EUR 12 million, and Valoe's maximum investment is EUR 6 million.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["EUR 15 million", "EUR 12 million delivery", "EUR 6 million Valoe max"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-003",
+      "query_type": "numerical_statistical",
+      "question": "How many countries does Salem Balhamer export to?",
+      "expected_answer": "Over 30 countries across GCC, Middle East, Asia, Africa, and Europe.",
+      "source_chunks": ["CHUNK_06", "CHUNK_07", "CHUNK_10"],
+      "key_facts": ["30+"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-004",
+      "query_type": "numerical_statistical",
+      "question": "What energy savings do FABCO thermal insulation products provide?",
+      "expected_answer": "35–45% annual electricity savings and 40% reduction in air conditioning loads.",
+      "source_chunks": ["CHUNK_10"],
+      "key_facts": ["35–45%", "40%"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-005",
+      "query_type": "numerical_statistical",
+      "question": "What percentage of electricity consumption in Saudi commercial buildings comes from AC?",
+      "expected_answer": "Air conditioning systems represent 60–70% of electricity consumption in commercial buildings in KSA.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["60–70%"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-006",
+      "query_type": "numerical_statistical",
+      "question": "How many years of HVAC experience does Salem Balhamer HVAC have?",
+      "expected_answer": "28+ years (since 1994).",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["28+", "1994"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-007",
+      "query_type": "numerical_statistical",
+      "question": "How many international brands does Salem Balhamer Trading distribute?",
+      "expected_answer": "Over 35 multinational brands from USA, Italy, China, India, Canada, and other countries.",
+      "source_chunks": ["CHUNK_13"],
+      "key_facts": ["35+"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-008",
+      "query_type": "numerical_statistical",
+      "question": "What percentage of construction project value do electromechanical works represent?",
+      "expected_answer": "Electromechanical works represent 25–60% of the total value of construction projects in KSA.",
+      "source_chunks": ["CHUNK_17"],
+      "key_facts": ["25–60%"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-009",
+      "query_type": "numerical_statistical",
+      "question": "What was the cooling capacity of the Al-Hussan Educational School HVAC project?",
+      "expected_answer": "VRV System with 1,900 TR (tons of refrigeration).",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["1,900 TR", "VRV"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-010",
+      "query_type": "numerical_statistical",
+      "question": "How many CSR partnership agreements did the group sign in 2025?",
+      "expected_answer": "Five strategic community partnership agreements under the 'Sustainable Impact' initiative.",
+      "source_chunks": ["CHUNK_23"],
+      "key_facts": ["five", "Sustainable Impact"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-011",
+      "query_type": "numerical_statistical",
+      "question": "How many subsidiaries does Salem Balhamer Holding Group have?",
+      "expected_answer": "More than 20 companies operating across various strategic sectors.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["20+"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "NS-012",
+      "query_type": "numerical_statistical",
+      "question": "By how much does regular HVAC maintenance extend system lifespan?",
+      "expected_answer": "Regular maintenance extends the lifespan of HVAC systems by up to 40%.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["40%"],
+      "evaluation_focus": ["correctness"]
+    },
+
+    {
+      "id": "CMP-001",
+      "query_type": "comparison",
+      "question": "What is the difference between FABCO Plastic Factory and Salem Balhamer Plastic Factory (BPF)?",
+      "expected_answer": "FABCO Plastic Factory was established in 1975 and specializes in PVC, UPVC, CPVC, and HDPE pipes and fittings with ISO 9002 certification and government approvals from Aramco, Saudi Electricity, and multiple ministries. BPF was established in 1994 and also produces plastic pipes, parts, and accessories but is positioned as a separate brand. Both are in Dammam's 2nd Industrial City and both participated in IKTVA 2025 and Big 5 Construct 2025 exhibitions.",
+      "source_chunks": ["CHUNK_07", "CHUNK_08"],
+      "key_facts": ["FABCO 1975 vs BPF 1994", "same location", "different brands", "both at exhibitions"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "CMP-002",
+      "query_type": "comparison",
+      "question": "How do Salem Balhamer Real Estate and Ryadah differ?",
+      "expected_answer": "Salem Balhamer Real Estate was established in the 1980s and focuses on real estate development and investment with operations in KSA, Bahrain, and Egypt, managing towers, complexes, and warehouses, with a DAMAC partnership. Ryadah Al-Bunyan specializes in comprehensive real estate services including valuation, engineering supervision, off-plan sales (Wafi), and real estate consultancy, operating from the Eastern Province with partnerships with developers and investors.",
+      "source_chunks": ["CHUNK_18"],
+      "key_facts": ["Real Estate: 1980s, development, KSA/Bahrain/Egypt, DAMAC", "Ryadah: comprehensive services, valuation, Wafi, consultancy"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "CMP-003",
+      "query_type": "comparison",
+      "question": "What is the difference between XPS and EPS insulation?",
+      "expected_answer": "XPS (Extruded Polystyrene) is produced through continuous extrusion, giving it higher density and better moisture resistance. It is recommended for roofs (30+ kg/m³, 12–15cm) and floors (35+ kg/m³). EPS (Expanded Polystyrene) is lighter, easier to install, more flexible, and recommended for walls (25 kg/m³, 10cm) and decorative applications (15–20 kg/m³). Both are produced by FABCO Thermal Insulators Factory.",
+      "source_chunks": ["CHUNK_10"],
+      "key_facts": ["XPS: higher density, moisture resistance", "EPS: lighter, flexible", "different applications"],
+      "evaluation_focus": ["correctness", "completeness"]
+    },
+    {
+      "id": "CMP-004",
+      "query_type": "comparison",
+      "question": "How does ICON Training differ from ICON Advanced?",
+      "expected_answer": "ICON Training Company (established 2022) focuses on professional training and education, offering programs in cyber security, management, ISO, safety, and Aramco technician qualification for Saudi youth. ICON Advanced Co. Ltd. is a technology investment vehicle, fully owned by the Holding Group, and manages the solar energy joint venture with Valoe Oyj (Finland) as well as marketing Valoe's solar products in the region.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["Training: education/certification", "Advanced: technology investment, solar JV"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "CMP-005",
+      "query_type": "comparison",
+      "question": "Compare the general contracting company with the HVAC company.",
+      "expected_answer": "Salem Balhamer General Contracting (est. 1993) provides 9 broad construction services including concrete buildings, infrastructure, metal works, landscape, and transportation. Salem Balhamer HVAC/AIR ZONE (est. 1994) is a specialized subsidiary focused exclusively on HVAC design, supply, installation, maintenance, and feasibility studies. The contracting company includes HVAC as one of its services, while the HVAC company is the dedicated specialist with 52,161+ units installed across 5,701+ projects.",
+      "source_chunks": ["CHUNK_15", "CHUNK_16"],
+      "key_facts": ["Contracting: 9 services, broad", "HVAC: specialized, 52K+ units"],
+      "evaluation_focus": ["faithfulness", "completeness"]
+    },
+    {
+      "id": "CMP-006",
+      "query_type": "comparison",
+      "question": "What is the difference between ISO 9002 and ISO 9001:2015 in the group?",
+      "expected_answer": "FABCO Plastic Factory holds ISO 9002 certification, while FABCO Thermal Insulators Factory holds ISO 9001:2015 certification. ISO 9001:2015 is the more recent and comprehensive quality management standard.",
+      "source_chunks": ["CHUNK_07", "CHUNK_10"],
+      "key_facts": ["FABCO Plastic: ISO 9002", "FABCO Thermal: ISO 9001:2015"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "CMP-007",
+      "query_type": "comparison",
+      "question": "How do VRV and chilled water HVAC systems differ based on the company's project examples?",
+      "expected_answer": "Both are systems installed by Salem Balhamer HVAC. VRV systems were used at Al-Hussan Educational School (1,900 TR) and Horse Schools Academy in Dammam. Chilled water systems were supplied for a residential complex for Maaden phosphate mines in Tarif (300 TR Chilled & 600 TR VRV in one project). The company installs both types depending on project requirements.",
+      "source_chunks": ["CHUNK_16"],
+      "key_facts": ["VRV: Al-Hussan 1900TR, Horse Schools", "Chilled water: Maaden project", "both installed by same company"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "CMP-008",
+      "query_type": "comparison",
+      "question": "Compare the trading company's vision with the holding group's vision.",
+      "expected_answer": "The Trading Company's vision is to be one of the leading commercial Saudi companies specialized in multi-use plastic and construction products. The Holding Group's vision is broader: to be a leading conglomerate holding company recognized for diversified investments and significant contribution to the Kingdom's economy.",
+      "source_chunks": ["CHUNK_03", "CHUNK_13"],
+      "key_facts": ["Trading: commercial/plastic/construction focus", "Holding: diversified investments, Kingdom economy"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "CMP-009",
+      "query_type": "comparison",
+      "question": "What is the difference between Enma & Injaz Sanitary Ware and Namaa & Injaz IT?",
+      "expected_answer": "Enma & Injaz Sanitary Ware is in the Trading Sector, specialized in supply and distribution of sanitary ware from global markets (China, Italy, Canada, USA). Namaa & Injaz for IT is in the Services Sector, specializing in communications infrastructure and information security. Despite similar naming conventions, they serve completely different sectors.",
+      "source_chunks": ["CHUNK_13", "CHUNK_20"],
+      "key_facts": ["Enma: sanitary ware, trading", "Namaa: IT, communications, security"],
+      "evaluation_focus": ["faithfulness", "correctness"]
+    },
+    {
+      "id": "CMP-010",
+      "query_type": "comparison",
+      "question": "Compare FABCO's factory locations: Dammam vs Jubail.",
+      "expected_answer": "Five factories are in Dammam's 2nd Industrial City: FABCO Plastic Factory, Salem Balhamer Plastic Factory (BPF), Salem Balhamer Plastic Containers Factory, and FABCO Thermal Insulators Factory. One factory is in Jubail: Al Jubail HIT Factory for Steel Fabrication & Galvanizing, located in the Third Industrial Area's Support Services Area.",
+      "source_chunks": ["CHUNK_06", "CHUNK_11"],
+      "key_facts": ["Dammam: 5 factories", "Jubail: 1 factory (HIT)"],
+      "evaluation_focus": ["correctness"]
+    },
+
+    {
+      "id": "AMB-001",
+      "query_type": "ambiguous_vague",
+      "question": "Tell me about Balhamer.",
+      "expected_answer": "Should provide a high-level overview: Salem Balhamer Holding Group is a Saudi family-owned conglomerate founded in 1979 by Sheikh Salem Ahmed Balhamer, headquartered in Dammam. It encompasses 20+ companies across industrial, trading, contracting, real estate, training, and services sectors.",
+      "source_chunks": ["CHUNK_01", "CHUNK_02"],
+      "key_facts": ["family-owned", "1979", "Dammam", "20+ companies", "multiple sectors"],
+      "evaluation_focus": ["answer_relevance", "completeness"]
+    },
+    {
+      "id": "AMB-002",
+      "query_type": "ambiguous_vague",
+      "question": "What do you do?",
+      "expected_answer": "Should interpret as asking about the company's activities and provide a sector overview covering industrial manufacturing, trading/distribution, construction/contracting, real estate development, training, and IT services.",
+      "source_chunks": ["CHUNK_01", "CHUNK_06", "CHUNK_13", "CHUNK_14", "CHUNK_18", "CHUNK_19", "CHUNK_20"],
+      "key_facts": ["multiple sectors covered"],
+      "evaluation_focus": ["answer_relevance"]
+    },
+    {
+      "id": "AMB-003",
+      "query_type": "ambiguous_vague",
+      "question": "I need pipes.",
+      "expected_answer": "Should identify the relevant product line: FABCO Plastic Factory and BPF manufacture PVC, UPVC, CPVC, and HDPE pipes for water supply, sewage, electricity conduits, and communications. Products are distributed by Salem Balhamer Trading Company. Should mention standards compliance and possibly provide contact info.",
+      "source_chunks": ["CHUNK_07", "CHUNK_08", "CHUNK_13"],
+      "key_facts": ["FABCO", "BPF", "PVC/UPVC/CPVC/HDPE", "Trading Company distributes"],
+      "evaluation_focus": ["answer_relevance"]
+    },
+    {
+      "id": "AMB-004",
+      "query_type": "ambiguous_vague",
+      "question": "Can you help with construction?",
+      "expected_answer": "Should direct to the contracting sector: Salem Balhamer General Contracting Co. (est. 1993) provides construction, infrastructure, electromechanical, HVAC, and other services. Also mention MEPPLUS for electromechanical and Salem Balhamer HVAC for air conditioning needs.",
+      "source_chunks": ["CHUNK_14", "CHUNK_15", "CHUNK_16"],
+      "key_facts": ["General Contracting", "MEPPLUS", "HVAC"],
+      "evaluation_focus": ["answer_relevance"]
+    },
+    {
+      "id": "AMB-005",
+      "query_type": "ambiguous_vague",
+      "question": "What about training?",
+      "expected_answer": "Should cover ICON Training Company (est. 2022): six disciplines including cyber security, management, ISO, creativity, safety, and Aramco technician qualification. Targets Saudi youth (administrators, technicians, engineers, managers). Internationally accredited programs.",
+      "source_chunks": ["CHUNK_19"],
+      "key_facts": ["ICON Training", "6 disciplines", "Saudi youth"],
+      "evaluation_focus": ["answer_relevance"]
+    },
+    {
+      "id": "AMB-006",
+      "query_type": "ambiguous_vague",
+      "question": "How big is the company?",
+      "expected_answer": "Should cover multiple size indicators: 201–500 employees, 20+ subsidiary companies, 6 factories, estimated $20.1M revenue (2024), operations in 30+ countries, 52,161+ HVAC units installed, nearly five decades of heritage.",
+      "source_chunks": ["CHUNK_01", "CHUNK_06", "CHUNK_16"],
+      "key_facts": ["201–500 employees", "20+ companies", "6 factories", "$20.1M"],
+      "evaluation_focus": ["completeness"]
+    },
+    {
+      "id": "AMB-007",
+      "query_type": "ambiguous_vague",
+      "question": "What's new?",
+      "expected_answer": "Should cover recent developments: Best Place to Work 2024–2025, participation in IKTVA 2025/SABIC 2025/Big 5 Construct 2025, five CSR 'Sustainable Impact' partnerships signed in 2025, SABIC and Saudi Export-Import Bank delegation visits to factories.",
+      "source_chunks": ["CHUNK_02", "CHUNK_23", "CHUNK_24"],
+      "key_facts": ["recent exhibitions", "CSR partnerships", "Best Place to Work"],
+      "evaluation_focus": ["answer_relevance"]
+    },
+    {
+      "id": "AMB-008",
+      "query_type": "ambiguous_vague",
+      "question": "I want to work with you.",
+      "expected_answer": "Should provide partnership or business inquiry guidance: overview of sectors, contact number (+966 138127397), headquarters address, website links. Could mention careers page or partnership opportunities across sectors.",
+      "source_chunks": ["CHUNK_01", "CHUNK_22"],
+      "key_facts": ["contact info", "sectors overview", "partnership opportunities"],
+      "evaluation_focus": ["answer_relevance"]
+    },
+
+    {
+      "id": "OOS-001",
+      "query_type": "out_of_scope",
+      "question": "What is the stock price of Salem Balhamer?",
+      "expected_answer": "Salem Balhamer Holding Group is a privately held company and does not have a publicly traded stock. Therefore, there is no stock price available.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["privately held"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Should NOT hallucinate a stock price. Must identify as private company."
+    },
+    {
+      "id": "OOS-002",
+      "query_type": "out_of_scope",
+      "question": "Can I buy FABCO pipes online?",
+      "expected_answer": "The knowledge base does not contain specific information about online purchasing for FABCO pipes. Salem Balhamer Trading Company is the exclusive distributor. Contact the company at +966 138127397 or visit salembalhamertrading.com for purchasing inquiries.",
+      "source_chunks": ["CHUNK_13"],
+      "key_facts": ["no online store info in KB", "Trading Company distributes"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Should NOT invent an e-commerce platform."
+    },
+    {
+      "id": "OOS-003",
+      "query_type": "out_of_scope",
+      "question": "What is the salary range for engineers at Salem Balhamer?",
+      "expected_answer": "Specific salary information is not available in the knowledge base. The company offers financial motivation systems including commissions, incentives, and profit-sharing. For specific compensation details, please contact the company directly.",
+      "source_chunks": ["CHUNK_22"],
+      "key_facts": ["no salary data", "financial motivation mentioned"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Must NOT fabricate salary figures."
+    },
+    {
+      "id": "OOS-004",
+      "query_type": "out_of_scope",
+      "question": "What is the weather like in Dammam today?",
+      "expected_answer": "This question is outside the scope of information about Salem Balhamer Holding Group. The company is headquartered in Dammam, Eastern Province, but weather information is not part of the company knowledge base.",
+      "source_chunks": [],
+      "key_facts": ["completely out of scope"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Should gracefully decline without hallucination."
+    },
+    {
+      "id": "OOS-005",
+      "query_type": "out_of_scope",
+      "question": "How does FABCO compare to Amiantit pipes?",
+      "expected_answer": "The knowledge base contains detailed information about FABCO's products and standards but does not contain information about Amiantit or other competitors. FABCO manufactures PVC, UPVC, CPVC, and HDPE pipes compliant with SASO, ASTM, DIN, and BS standards.",
+      "source_chunks": ["CHUNK_07"],
+      "key_facts": ["no competitor data", "can describe FABCO only"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Should NOT invent competitor details."
+    },
+    {
+      "id": "OOS-006",
+      "query_type": "out_of_scope",
+      "question": "What are the financial statements for 2024?",
+      "expected_answer": "Detailed financial statements are not publicly available. Salem Balhamer Holding Group is a privately held company. The estimated annual revenue was $20.1 million in 2024 based on third-party sources.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["privately held", "no financial statements", "$20.1M estimate"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Should NOT fabricate financial data."
+    },
+    {
+      "id": "OOS-007",
+      "query_type": "out_of_scope",
+      "question": "Does Salem Balhamer have operations in the USA?",
+      "expected_answer": "The knowledge base does not indicate operations in the USA. The Group operates primarily in Saudi Arabia with presence in Bahrain, Egypt, Yemen, GCC countries, and exports to Middle East, Africa, Asia, and Europe. ICON Advanced markets solar products in Saudi Arabia, Dubai, Abu Dhabi, and Oman.",
+      "source_chunks": ["CHUNK_24"],
+      "key_facts": ["no USA operations mentioned"],
+      "evaluation_focus": ["faithfulness"]
+    },
+
+    {
+      "id": "EC-001",
+      "query_type": "edge_case_negative",
+      "question": "Is Salem Balhamer a publicly listed company?",
+      "expected_answer": "No, Salem Balhamer Holding Group is a privately held, family-owned conglomerate.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["privately held", "family-owned"],
+      "evaluation_focus": ["correctness"]
+    },
+    {
+      "id": "EC-002",
+      "query_type": "edge_case_negative",
+      "question": "Does Salem Balhamer manufacture cars?",
+      "expected_answer": "No. Salem Balhamer's industrial sector manufactures plastic pipes and fittings (PVC, UPVC, CPVC, HDPE), thermal insulation products (XPS/EPS), plastic containers/packaging, and metal fabrication/galvanizing products. The Group does not manufacture automobiles.",
+      "source_chunks": ["CHUNK_06"],
+      "key_facts": ["no automotive manufacturing"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "EC-003",
+      "query_type": "edge_case_negative",
+      "question": "Does the group have a hospital?",
+      "expected_answer": "Healthcare is listed among the Group's sector interests, but no specific hospital or healthcare facility is detailed in the knowledge base. The contracting company has completed health and medical facility construction projects.",
+      "source_chunks": ["CHUNK_21", "CHUNK_15"],
+      "key_facts": ["healthcare mentioned as sector interest", "built medical facilities", "no owned hospital detailed"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "EC-004",
+      "query_type": "edge_case_negative",
+      "question": "When did Sheikh Salem Ahmed Balhamer pass away?",
+      "expected_answer": "The knowledge base does not contain information about Sheikh Salem Ahmed Balhamer passing away. He is referenced as the founder and Chairman of the Board.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["no death mentioned", "referenced as Chairman"],
+      "evaluation_focus": ["faithfulness"],
+      "notes": "Critical: Must NOT fabricate life/death information."
+    },
+    {
+      "id": "EC-005",
+      "query_type": "edge_case_negative",
+      "question": "Does the company provide food catering services?",
+      "expected_answer": "No, food catering is not among the Group's services. The Group operates in industrial manufacturing, trading, contracting, real estate, training, and IT services. However, the plastic containers factory produces cups, plates, and food containers.",
+      "source_chunks": ["CHUNK_06", "CHUNK_09"],
+      "key_facts": ["no catering", "containers factory produces food packaging"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "EC-006",
+      "query_type": "edge_case_negative",
+      "question": "Is FABCO a Saudi Aramco company?",
+      "expected_answer": "No, FABCO Plastic Factory is a subsidiary of Salem Balhamer Holding Group, not Saudi Aramco. However, FABCO's products have been officially approved by Saudi Aramco as a major resource for various Aramco projects.",
+      "source_chunks": ["CHUNK_07"],
+      "key_facts": ["not Aramco subsidiary", "Aramco-approved products"],
+      "evaluation_focus": ["faithfulness", "correctness"]
+    },
+    {
+      "id": "EC-007",
+      "query_type": "edge_case_negative",
+      "question": "Can I invest in Salem Balhamer shares?",
+      "expected_answer": "Salem Balhamer Holding Group is a privately held, family-owned company and does not offer publicly traded shares. For business or investment partnership inquiries, contact the Group at +966 138127397.",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["privately held", "no public shares"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "EC-008",
+      "query_type": "edge_case_negative",
+      "question": "Does Salem Balhamer operate in Europe directly?",
+      "expected_answer": "The Group exports industrial products to European markets but does not appear to have direct operational offices in Europe. The solar joint venture partner Valoe Oyj is based in Finland, and products are exported to over 30 countries including European destinations.",
+      "source_chunks": ["CHUNK_06", "CHUNK_19", "CHUNK_24"],
+      "key_facts": ["exports to Europe", "no direct European operations mentioned", "Valoe based in Finland"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "EC-009",
+      "query_type": "edge_case_negative",
+      "question": "What is the group's market cap?",
+      "expected_answer": "As a privately held company, Salem Balhamer Holding Group does not have a market capitalization. Estimated annual revenue is $20.1 million (2024).",
+      "source_chunks": ["CHUNK_01"],
+      "key_facts": ["private company", "no market cap", "$20.1M revenue estimate"],
+      "evaluation_focus": ["faithfulness"]
+    },
+    {
+      "id": "EC-010",
+      "query_type": "edge_case_negative",
+      "question": "Does Salem Balhamer have an app I can download?",
+      "expected_answer": "The knowledge base does not mention a mobile application. The Group has multiple websites for its various subsidiaries. For information, visit salembalhamer.com or contact +966 138127397.",
+      "source_chunks": ["CHUNK_26"],
+      "key_facts": ["no app mentioned", "websites available"],
+      "evaluation_focus": ["faithfulness"]
+    }
+  ]
+}
