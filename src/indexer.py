@@ -17,13 +17,16 @@ KB_FILE = "./data/Salem_Balhamer_RAG_Knowledge_Base.md"
 # Set the HF_TOKEN environment variable before running this script:
 #   export HF_TOKEN=your_token_here   (Linux/Mac)
 #   set HF_TOKEN=your_token_here      (Windows)
-hf_token = os.environ.get("HF_TOKEN")
-if not hf_token:
-    raise EnvironmentError(
-        "HF_TOKEN environment variable is not set. "
-        "Export it before running: export HF_TOKEN=your_token_here"
-    )
-os.environ["HF_TOKEN"] = hf_token
+#hf_token = os.environ.get("HF_TOKEN")
+#if not hf_token:
+#    raise EnvironmentError(
+#        "HF_TOKEN environment variable is not set. "
+#        "Export it before running: export HF_TOKEN=your_token_here"
+#    )
+#os.environ["HF_TOKEN"] = hf_token
+
+
+hf_token = ""
 
 # FIX: Sector classification now uses a keyword scoring system.
 # Each sector accumulates a score based on how many of its keywords appear in the chunk.
