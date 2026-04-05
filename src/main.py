@@ -53,6 +53,7 @@ _GREETING_REPLIES = {
     "thank you": "You're welcome! Let me know if there's anything else I can help with.",
 }
 
+
 def get_casual_reply(text: str) -> str | None:
     if not _CASUAL_PATTERNS.search(text):
         return None
@@ -65,9 +66,11 @@ class HistoryItem(BaseModel):
     role: str
     text: str
 
+
 class ChatRequest(BaseModel):
     message: str
     history: List[HistoryItem] = []
+
 
 class ChatResponse(BaseModel):
     reply: str
@@ -101,9 +104,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(payload: ChatRequest, req: Request):
@@ -141,8 +146,7 @@ async def chat_endpoint(payload: ChatRequest, req: Request):
             4. Don't quote specific numbers, financials, or headcounts unless they appear explicitly in the context.
             5. If someone asks you to compare SBH with competitors or criticise the company, politely steer the conversation back and suggest they reach out to the team directly.
             6. Never open with hollow phrases like "Certainly!", "Of course!", or "Great question!". Just answer.
-            7. When your answer is incomplete or the person might need more help, end with something like:
-               "Feel free to reach out to the team directly — you can email Info@SalemBalhamer.com or call +966 138127397."
+            7. When your answer is incomplete or the person might need more help, politely suggest they reach out to the support team using the contact information provided in the baseline facts.
             8. If the context and baseline facts have absolutely nothing relevant to the query, output ONLY the single word: UNANSWERABLE
 
             {BASELINE_FACTS}
