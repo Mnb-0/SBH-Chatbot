@@ -121,7 +121,7 @@ async def chat_endpoint(payload: ChatRequest, req: Request):
             return ChatResponse(reply=casual_reply)
 
         # 2. Routing
-        sector = get_sector_filter(prompt, critic_llm)
+        sector = get_sector_filter(prompt, gen_llm)
 
         # 3. Retrieval
         docs = get_soft_search_results(vectorstore, prompt, sector)
