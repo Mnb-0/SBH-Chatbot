@@ -16,8 +16,13 @@ BASELINE_FACTS = """
     - Founder & Chairman: Sheikh Salem Ahmed Balhamer
     - CEO: Ahmed Salem Balhamer
     - Headquarters: Balhamer Business Gate, Floor 20, Al Ashriah Street, Dammam, KSA
-    - Phone: +966 138127397
+    - Main Phone: +966 138127397
     - Established: 1979 (Trading), 2013 (Holding Group)
+
+    CONTACT DETAILS:
+    - Holding Group Email: Info@SalemBalhamer.com | Phone: +966 138127397
+    - Trading Company Email: info@salembalhamertrading.com | Phone: +9660138105747
+    - Plastic Factory Email: info@salembalhamerplastic.com | Mobile: 0138105754
     """
 
 AUDIT_MIN_LENGTH = 50
