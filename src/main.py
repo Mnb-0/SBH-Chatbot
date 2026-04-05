@@ -16,6 +16,7 @@ load_dotenv()
 from core_logic import (
     BASELINE_FACTS,
     AUDIT_MIN_LENGTH,
+    MAX_HISTORY_TURNS,
     get_rag_components,
     get_sector_filter,
     get_soft_search_results,
@@ -147,7 +148,7 @@ async def chat_endpoint(payload: ChatRequest, req: Request):
         """
 
         messages = [SystemMessage(content=system_prompt)]
-        for item in payload.history:
+        for item in payload.history[-MAX_HISTORY_TURNS:]:
             if item.role == "user":
                 messages.append(HumanMessage(content=item.text))
             else:

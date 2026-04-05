@@ -10,6 +10,7 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from core_logic import (
     BASELINE_FACTS,
     AUDIT_MIN_LENGTH,
+    MAX_HISTORY_TURNS,
     get_rag_components,
     get_sector_filter,
     get_soft_search_results,
@@ -106,7 +107,7 @@ if prompt := st.chat_input("Ask about the group..."):
 
         else:
             with st.status("🧠 Analyzing Context...") as s:
-                sector = get_sector_filter(prompt, critic_llm)
+                sector = get_sector_filter(prompt, gen_llm)
                 s.update(label=f"Routed to: {sector}")
 
                 docs = get_soft_search_results(vectorstore, prompt, sector)
@@ -132,7 +133,7 @@ if prompt := st.chat_input("Ask about the group..."):
             """
 
             messages = [SystemMessage(content=system_prompt)]
-            for msg in st.session_state.messages[:-1]:
+            for msg in st.session_state.messages[:-1][-MAX_HISTORY_TURNS:]:
                 if msg["role"] == "user":
                     messages.append(HumanMessage(content=msg["content"]))
                 else:

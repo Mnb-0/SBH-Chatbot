@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from typing import Any
-from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -10,10 +10,6 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 
 logger = logging.getLogger(__name__)
 
-api_key = os.environ.get("GROQ_API_KEY")
-
-# FIX: Single source of truth for baseline facts, shared by the generator and auditor
-# in main.py. Updating facts here propagates everywhere automatically.
 BASELINE_FACTS = """
     BASELINE CORPORATE FACTS:
     - Company Name: Salem Balhamer Holding Group
@@ -23,9 +19,9 @@ BASELINE_FACTS = """
     - Phone: +966 138127397
     - Established: 1979 (Trading), 2013 (Holding Group)
     """
-    
-    
-AUDIT_MIN_LENGTH = 100
+
+AUDIT_MIN_LENGTH = 50
+MAX_HISTORY_TURNS = 8
 
 
 def get_rag_components(api_key):
@@ -34,26 +30,40 @@ def get_rag_components(api_key):
         raise ValueError("API Key is missing. Check your environment variables.")
 
     embeddings = FastEmbedEmbeddings(
-        model_name="BAAI/bge-small-en-v1.5", providers=["CPUExecutionProvider"]
+        model_name="BAAI/bge-base-en-v1.5", providers=["CPUExecutionProvider"]
     )
+
+    sparse_embeddings = FastEmbedSparse(model_name="prithivida/Splade_PP_en_v1")
 
     db_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "qdrant_db"
     )
     if not os.path.exists(db_path):
         raise FileNotFoundError(
-            f"Database folder '{db_path}' not found! Run indexer.py first."
+            f"Database folder '{db_path}' not found! Run ingest.py first."
         )
 
     vectorstore = QdrantVectorStore.from_existing_collection(
-        embedding=embeddings, collection_name="salem_balhamer_knowledge", path=db_path
+        embedding=embeddings,
+        sparse_embedding=sparse_embeddings,
+        collection_name="salem_balhamer_knowledge",
+        path=db_path,
+        vector_name="dense",
+        sparse_vector_name="sparse",
+        retrieval_mode=RetrievalMode.HYBRID,
     )
 
     generator_llm = ChatGroq(
-        model="llama-3.1-8b-instant", temperature=0.3, groq_api_key=api_key
+        model="llama-3.1-8b-instant",
+        temperature=0.3,
+        groq_api_key=api_key,
+        request_timeout=30,
     )
     critic_llm = ChatGroq(
-        model="llama-3.3-70b-versatile", temperature=0, groq_api_key=api_key
+        model="llama-3.3-70b-versatile",
+        temperature=0,
+        groq_api_key=api_key,
+        request_timeout=30,
     )
 
     return vectorstore, generator_llm, critic_llm
@@ -76,8 +86,6 @@ def get_sector_filter(query, llm):
     
     Output ONLY the exact category name from the list above. Nothing else.
     """
-    # FIX: Replaced bare except with explicit Exception logging so routing failures
-    # are visible rather than silently degrading every response to "General".
     try:
         response = llm.invoke(
             [HumanMessage(content=routing_prompt + f"\nQuery: {query}")]
@@ -92,7 +100,9 @@ def get_sector_filter(query, llm):
             "General",
         ]
         if category not in valid_sectors:
-            logger.warning(f"Router returned unexpected sector '{category}' for query '{query}'. Falling back to General.")
+            logger.warning(
+                f"Router returned unexpected sector '{category}' for query '{query}'. Falling back to General."
+            )
             return "General"
         return category
     except Exception as e:
@@ -101,7 +111,7 @@ def get_sector_filter(query, llm):
 
 
 def get_soft_search_results(vectorstore, query, target_sector, k=8):
-    """Retrieves context, heavily favoring the routed sector."""
+    """Retrieves context using hybrid search, favouring the routed sector."""
     search_kwargs: dict[str, Any] = {"k": k}
     if target_sector and target_sector != "General":
         search_kwargs["filter"] = Filter(
@@ -116,10 +126,6 @@ def get_soft_search_results(vectorstore, query, target_sector, k=8):
 
 def verify_response(critic_llm, context, answer):
     """The Critic Pass: Neutral fact-check against provided context."""
-    # FIX: Replaced "Hostile Auditor" framing with a neutral fact-checker.
-    # The previous prompt was calibrated to find any excuse to reject, causing
-    # frequent false positives that triggered self_correct unnecessarily,
-    # adding latency and often producing worse, over-hedged replies.
     verification_prompt = f"""
     ### ROLE: Neutral Fact-Checker
     Your job is to verify whether the ANSWER contains claims that directly contradict 
@@ -158,9 +164,7 @@ def verify_response(critic_llm, context, answer):
         }
 
 
-def self_correct(
-    generator_llm, context, original_query, flawed_answer, critic_feedback
-):
+def self_correct(generator_llm, context, original_query, flawed_answer, critic_feedback):
     """The Correction Pass."""
     correction_prompt = f"""
     ### ROLE: Revision Assistant
@@ -172,5 +176,8 @@ def self_correct(
     TASK: Rewrite the answer to the query: '{original_query}'. 
     STRICT RULE: Remove any information not explicitly found in the context.
     """
-    response = generator_llm.invoke([SystemMessage(content=correction_prompt)])
+    response = generator_llm.invoke([
+        SystemMessage(content=correction_prompt),
+        HumanMessage(content=original_query),
+    ])
     return response.content.strip()
